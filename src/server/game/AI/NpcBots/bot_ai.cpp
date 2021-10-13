@@ -5989,10 +5989,6 @@ bool bot_ai::OnGossipHello(Player* player, uint32 /*option*/)
             uint32 cost = BotMgr::GetNpcBotCost(player->GetLevel(), _botclass);
 
             int8 reason = 0;
-            if (me->HasAura(BERSERK))
-                reason = -1;
-            if (!reason && _ownerGuid)
-                reason = 1;
             if (!reason && player->GetNpcBotsCount() >= BotMgr::GetMaxNpcBots())
                 reason = 2;
             if (!reason && !player->HasEnoughMoney(cost))
@@ -7943,21 +7939,6 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
             int32 reason = action - GOSSIP_ACTION_INFO_DEF;
             if (!reason)
             {
-                if (_ownerGuid)
-                {
-                    //std::ostringstream ostr;
-                    //std::string name;
-                    //ostr << "Go away. I serve my master ";
-                    //if (sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, _ownerGuid), name))
-                    //    ostr << name;
-                    //else
-                    //    ostr << "unknown (" << _ownerGuid << ')';
-                    //BotWhisper(ostr.str().c_str(), player);
-                    ChatHandler ch(player->GetSession());
-                    ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_HIREFAIL_OWNED).c_str(), me->GetName().c_str());
-                    break;
-                }
-
                 if (_botclass == BOT_CLASS_DEATH_KNIGHT && player->GetLevel() < 55)
                 {
                     BotWhisper(LocalizedNpcText(player, BOT_TEXT_HIREDENY_DK), player);
@@ -8014,33 +7995,11 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 else
                     BotSay("...", player);
             }
-            else if (reason == -1)
-            {
-                me->SetFaction(14);
-                if (botPet)
-                    botPet->SetFaction(14);
-                BotYell(LocalizedNpcText(player, BOT_TEXT_DIE), player);
-                me->Attack(player, true);
-                break;
-            }
             else
             {
                 ChatHandler ch(player->GetSession());
                 switch (reason)
                 {
-                    case 1: //has owner
-                    {
-                        std::ostringstream ostr;
-                        std::string name;
-                        ostr << LocalizedNpcText(player, BOT_TEXT_HIREDENY_MY_MASTER_IS_);
-                        if (sCharacterCache->GetCharacterNameByGuid(ObjectGuid(HighGuid::Player, _ownerGuid), name))
-                            ostr << name;
-                        else
-                            ostr << LocalizedNpcText(player, BOT_TEXT_UNKNOWN) + " (" << _ownerGuid << ')';
-                        BotWhisper(ostr.str().c_str(), player);
-                        ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_HIREFAIL_OWNED).c_str(), me->GetName().c_str());
-                        break;
-                    }
                     case 2: //max npcbots exceed
                         ch.PSendSysMessage(LocalizedNpcText(player, BOT_TEXT_HIREFAIL_MAXBOTS).c_str(), BotMgr::GetMaxNpcBots());
                         BotSay("...", player);
@@ -8096,12 +8055,6 @@ bool bot_ai::OnGossipSelect(Player* player, Creature* creature/* == me*/, uint32
                 break;
 
             mgr->RemoveBot(me->GetGUID(), BOT_REMOVE_DISMISS);
-            if (Aura* bers = me->AddAura(BERSERK, me))
-            {
-                uint32 dur = 5 * MINUTE * IN_MILLISECONDS;
-                bers->SetDuration(dur);
-                bers->SetMaxDuration(dur);
-            }
             //if (urand(1,100) <= 25)
             //{
             //    me->SetFaction(14);
