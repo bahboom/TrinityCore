@@ -313,7 +313,7 @@ public:
         //{
         //    return &Spellbreaker_spells_heal;
         //}
-        std::vector<uint32> const* GetSupportSpellsList() const
+        std::vector<uint32> const* GetSupportSpellsList() const override
         {
             return &Spellbreaker_spells_support;
         }
