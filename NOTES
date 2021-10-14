@@ -1,0 +1,20 @@
+To compile with debug:
+
+Delete everything in build directory:
+    rm -rf *
+
+Set CXXFLAGS:
+    export CXXFLAGS="-m64 -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -O0 -g3 -ggdb3 -pipe -msse3  -fno-delete-null-pointer-checks -fno-strict-aliasing"
+  
+Run cmake with commands json:
+    cmake .. -DCMAKE_BUILD_TYPE=None -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+Check commands json and make sure -g and -O0 flags are being used:
+    less compile_commands.json
+
+
+Set Database permission:
+    GRANT USAGE ON * . * TO 'trinity'@'%' IDENTIFIED BY 'trinity' WITH GRANT OPTION MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 ;
+    flush privileges;
+
+    edit /etc/mysql/mariadb.conf.d/50-server.cnf to bind on 0.0.0.0
