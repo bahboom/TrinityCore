@@ -18,3 +18,21 @@ Set Database permission:
     flush privileges;
 
     edit /etc/mysql/mariadb.conf.d/50-server.cnf to bind on 0.0.0.0
+
+OpenSSL 1.0 dependency:
+    # openssl preparations
+    wget https://www.openssl.org/source/openssl-1.0.2n.tar.gz
+    gzip -d openssl-1.0.2n.tar.gz
+    cd openssl-1.0.2n
+    export CFLAGS=-fPIC
+    ./config shared --openssldir=/usr/local/openssl-1.0.2n
+    make
+    make test
+    make install
+
+    # TC preparations
+    cd TrinityCore/build
+    cmake ../ -DOPENSSL_LIBRARIES=/usr/local/openssl-1.0.2n/lib -DOPENSSL_INCLUDE_DIR=/usr/local/openssl-1.0.2n/include -DOPENSSL_ROOT_DIR=/usr/local/openssl-1.0.2n -DOPENSSL_CRYPTO_LIBRARIES=/usr/local/openssl-1.0.2n/lib/libcrypto.a -DOPENSSL_SSL_LIBRARIES=/usr/local/openssl-1.0.2n/lib/libssl.a
+
+    make
+    make install
